@@ -25,3 +25,7 @@ xcuserdata/
 
 # Temporary files
 *.part
+
+# Release artifacts
+releases/*.app
+releases/*.dmg
