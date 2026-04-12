@@ -2,6 +2,8 @@
 
 A lightweight, native macOS app for downloading video, audio, and transcripts from YouTube and any other site supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
+![YTGet v1.2](assets/YTGet%20v1.2.png)
+
 ## Features
 
 - **Video downloads** — saves as MP4 at your choice of quality (Best, 4K, 1080p, 720p)
