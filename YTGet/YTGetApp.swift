@@ -19,14 +19,6 @@ struct YTGetApp: App {
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
         .defaultSize(width: 680, height: 560)
-        .commands {
-            CommandGroup(replacing: .appSettings) {
-                Button("Settings...") {
-                    openSettings()
-                }
-                .keyboardShortcut(",", modifiers: .command)
-            }
-        }
 
         Settings {
             SettingsView()
@@ -35,13 +27,6 @@ struct YTGetApp: App {
         }
     }
 
-    private func openSettings() {
-        if #available(macOS 14.0, *) {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        } else {
-            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-        }
-    }
 }
 
 final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {

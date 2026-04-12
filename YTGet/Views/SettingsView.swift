@@ -120,13 +120,26 @@ struct SettingsView: View {
                     .font(.system(size: 13))
                     .foregroundColor(.onSurfaceVariant)
             }
-            SettingsRow(label: "Powered by") {
-                Button("yt-dlp") {
-                    NSWorkspace.shared.open(URL(string: "https://github.com/yt-dlp/yt-dlp")!)
-                }
-                .buttonStyle(.plain)
-                .font(.system(size: 13))
-                .foregroundColor(.appPrimary)
+
+            SettingsSectionView(title: "Open Source Credits") {
+                CreditRow(
+                    name: "yt-dlp",
+                    description: "Video downloader",
+                    license: "The Unlicense",
+                    url: "https://github.com/yt-dlp/yt-dlp"
+                )
+                CreditRow(
+                    name: "ffmpeg",
+                    description: "Audio/video processing",
+                    license: "LGPL 2.1+",
+                    url: "https://ffmpeg.org"
+                )
+                CreditRow(
+                    name: "Homebrew",
+                    description: "Package management",
+                    license: "BSD 2-Clause",
+                    url: "https://brew.sh"
+                )
             }
         }
     }
@@ -177,6 +190,41 @@ struct SettingsRow<Content: View>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .background(Color.surfaceContainerLow)
+    }
+}
+
+struct CreditRow: View {
+    let name: String
+    let description: String
+    let license: String
+    let url: String
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Button(name) {
+                    NSWorkspace.shared.open(URL(string: url)!)
+                }
+                .buttonStyle(.plain)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.appPrimary)
+
+                Text(description)
+                    .font(.system(size: 11))
+                    .foregroundColor(.onSurfaceVariant.opacity(0.7))
+            }
+            Spacer()
+            Text(license)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(.onSurfaceVariant.opacity(0.6))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.surfaceContainerHighest)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .background(Color.surfaceContainerLow)
     }
 }

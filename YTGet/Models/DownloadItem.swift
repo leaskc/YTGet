@@ -37,8 +37,26 @@ struct FormatOptions {
             }
         }
     }
+
+    enum AudioQuality: String, CaseIterable {
+        case best  = "Best"
+        case q320  = "320k"
+        case q192  = "192k"
+        case q128  = "128k"
+
+        var audioQualityFlag: String {
+            switch self {
+            case .best: return "0"
+            case .q320: return "320K"
+            case .q192: return "192K"
+            case .q128: return "128K"
+            }
+        }
+    }
+
     var format: Format = .video
     var quality: VideoQuality = .best
+    var audioQuality: AudioQuality = .best
     var filenameTemplate: String = "%(title)s.%(ext)s"
     var embedThumbnail: Bool = true
     var embedMetadata: Bool = true

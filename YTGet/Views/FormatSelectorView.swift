@@ -3,6 +3,7 @@ import SwiftUI
 struct FormatSelectorView: View {
     @Binding var format: FormatOptions.Format
     @Binding var quality: FormatOptions.VideoQuality
+    @Binding var audioQuality: FormatOptions.AudioQuality
 
     var body: some View {
         HStack(spacing: 8) {
@@ -18,7 +19,7 @@ struct FormatSelectorView: View {
             .background(Color(hex: "#0e0e0e"))
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            // Quality picker — only shown for video
+            // Quality picker — video or audio depending on format
             if format == .video {
                 HStack(spacing: 0) {
                     ForEach(FormatOptions.VideoQuality.allCases, id: \.self) { q in
@@ -30,6 +31,17 @@ struct FormatSelectorView: View {
                 .background(Color(hex: "#0e0e0e"))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .transition(.opacity.combined(with: .move(edge: .leading)))
+            } else {
+                HStack(spacing: 0) {
+                    ForEach(FormatOptions.AudioQuality.allCases, id: \.self) { q in
+                        FormatButton(title: q.rawValue, systemImage: "", isSelected: audioQuality == q) {
+                            audioQuality = q
+                        }
+                    }
+                }
+                .background(Color(hex: "#0e0e0e"))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .transition(.opacity.combined(with: .move(edge: .trailing)))
             }
         }
         .animation(.easeInOut(duration: 0.15), value: format)

@@ -9,6 +9,7 @@ final class DownloadManager {
     var outputFolder: URL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
     var globalFormat: FormatOptions.Format = .video
     var globalQuality: FormatOptions.VideoQuality = .best
+    var globalAudioQuality: FormatOptions.AudioQuality = .best
     var isProcessingQueue = false
 
     private let runner = YTDLPRunner()
@@ -67,6 +68,7 @@ final class DownloadManager {
         var opts = FormatOptions()
         opts.format = globalFormat
         opts.quality = globalQuality
+        opts.audioQuality = globalAudioQuality
         opts.filenameTemplate = filenameTemplate
         opts.embedThumbnail = embedThumbnail
         opts.embedMetadata = embedMetadata

@@ -41,7 +41,7 @@ final class YTDLPRunner {
             args += ["--format", opts.quality.formatString]
             args += ["--merge-output-format", "mp4"]
         case .audioOnly:
-            args += ["--extract-audio", "--audio-format", "mp3", "--audio-quality", "0"]
+            args += ["--extract-audio", "--audio-format", "mp3", "--audio-quality", opts.audioQuality.audioQualityFlag]
             if opts.embedThumbnail {
                 args += ["--embed-thumbnail"]
             }
