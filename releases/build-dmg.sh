@@ -7,7 +7,7 @@ if [ -z "$APP" ]; then
   exit 1
 fi
 
-VERSION=$(defaults read "$APP/Contents/Info.plist" CFBundleShortVersionString)
+VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
 OUTPUT="YTGet-${VERSION}.dmg"
 
 rm -f "$OUTPUT"
