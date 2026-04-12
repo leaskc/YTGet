@@ -181,6 +181,9 @@ final class YTDLPRunner {
                 process.waitUntilExit()
 
                 if process.terminationReason == .uncaughtSignal {
+                    var errUpdate = ProgressUpdate()
+                    errUpdate.errorMessage = "Process ended unexpectedly"
+                    continuation.yield(errUpdate)
                     continuation.finish()
                     return
                 }
@@ -190,14 +193,25 @@ final class YTDLPRunner {
                         percentage: 100, fileSize: nil, speed: nil, eta: nil, isComplete: true
                     ))
                 } else {
-                    let errorLine = errText
+                    let rawError = errText
                         .components(separatedBy: "\n")
                         .first(where: { $0.contains("ERROR:") })?
                         .replacingOccurrences(of: "ERROR: ", with: "")
                         .trimmingCharacters(in: .whitespaces)
                         ?? "Download failed (exit \(process.terminationStatus))"
+
+                    let errorLine: String
+                    let lower = rawError.lowercased()
+                    if lower.contains("network") || lower.contains("connection") ||
+                       lower.contains("timed out") || lower.contains("no route") ||
+                       lower.contains("name or service not known") || lower.contains("unreachable") {
+                        errorLine = "No network connection"
+                    } else {
+                        errorLine = String(rawError.prefix(120))
+                    }
+
                     var errUpdate = ProgressUpdate()
-                    errUpdate.errorMessage = String(errorLine.prefix(120))
+                    errUpdate.errorMessage = errorLine
                     continuation.yield(errUpdate)
                 }
                 continuation.finish()

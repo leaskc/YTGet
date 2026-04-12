@@ -7,6 +7,7 @@ struct ContentView: View {
 
     @State private var urlInput = ""
     @State private var urlError: String? = nil
+    @FocusState private var urlFieldFocused: Bool
     @State private var showDependencySheet = false
     @State private var pendingInstallPackage: String? = nil
     @State private var pendingInstallDisplayName: String? = nil
@@ -178,7 +179,10 @@ struct ContentView: View {
                     .background(Color.surfaceContainerHighest)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .onSubmit { addURL() }
-                    .onAppear { checkClipboard() }
+                    .focused($urlFieldFocused)
+                    .onChange(of: urlFieldFocused) { _, focused in
+                        if focused { checkClipboard() }
+                    }
 
                 if let error = urlError {
                     Text(error)
