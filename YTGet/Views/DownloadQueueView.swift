@@ -12,7 +12,7 @@ struct DownloadQueueView: View {
         } else {
             ScrollView {
                 LazyVStack(spacing: 8) {
-                    ForEach(items) { item in
+                    ForEach(items.reversed()) { item in
                         DownloadItemRowView(
                             item: item,
                             outputFolder: outputFolder,
