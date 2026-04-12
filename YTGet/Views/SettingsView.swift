@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var embedThumbnail: Bool = true
     @State private var embedMetadata: Bool = true
     @State private var transcriptIncludeTimestamps: Bool = false
+    @State private var showDedication = false
 
     var body: some View {
         @Bindable var m = manager
@@ -20,6 +21,7 @@ struct SettingsView: View {
                     downloadsSection
                     transcriptsSection
                     aboutSection
+                    creditsSection
                 }
                 .padding(24)
             }
@@ -138,32 +140,52 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         SettingsSectionView(title: "About") {
+            HStack {
+                Spacer()
+                Button(action: { showDedication = true }) {
+                    if let icon = NSImage(named: "AppIcon") {
+                        Image(nsImage: icon)
+                            .resizable()
+                            .frame(width: 80, height: 80)
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 12)
+                Spacer()
+            }
+            .sheet(isPresented: $showDedication) {
+                DedicationView()
+            }
+
             SettingsRow(label: "Version") {
                 Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                     .font(.system(size: 13))
                     .foregroundColor(.onSurfaceVariant)
             }
 
-            SettingsSectionView(title: "Open Source Credits") {
-                CreditRow(
-                    name: "yt-dlp",
-                    description: "Video downloader",
-                    license: "The Unlicense",
-                    url: "https://github.com/yt-dlp/yt-dlp"
-                )
-                CreditRow(
-                    name: "ffmpeg",
-                    description: "Audio/video processing",
-                    license: "LGPL 2.1+",
-                    url: "https://ffmpeg.org"
-                )
-                CreditRow(
-                    name: "Homebrew",
-                    description: "Package management",
-                    license: "BSD 2-Clause",
-                    url: "https://brew.sh"
-                )
-            }
+        }
+    }
+
+    private var creditsSection: some View {
+        SettingsSectionView(title: "Open Source Credits") {
+            CreditRow(
+                name: "yt-dlp",
+                description: "Video downloader",
+                license: "The Unlicense",
+                url: "https://github.com/yt-dlp/yt-dlp"
+            )
+            CreditRow(
+                name: "ffmpeg",
+                description: "Audio/video processing",
+                license: "LGPL 2.1+",
+                url: "https://ffmpeg.org"
+            )
+            CreditRow(
+                name: "Homebrew",
+                description: "Package management",
+                license: "BSD 2-Clause",
+                url: "https://brew.sh"
+            )
         }
     }
 
@@ -214,6 +236,43 @@ struct SettingsRow<Content: View>: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.surfaceContainerLow)
+    }
+}
+
+struct DedicationView: View {
+    @Environment(\.dismiss) private var dismiss
+    private let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            if let icon = NSImage(named: "AppIcon") {
+                Image(nsImage: icon)
+                    .resizable()
+                    .frame(width: 96, height: 96)
+                    .padding(.bottom, 28)
+            }
+
+            Text("YTGet \(version)")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(.onSurface)
+
+            Text("For Amanda")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundColor(.onSurfaceVariant.opacity(0.7))
+                .padding(.top, 6)
+
+            Spacer()
+
+            Button("Close") { dismiss() }
+                .buttonStyle(.plain)
+                .font(.system(size: 13))
+                .foregroundColor(.appPrimary)
+                .padding(.bottom, 24)
+        }
+        .frame(width: 300, height: 280)
+        .background(Color.appBackground)
     }
 }
 
