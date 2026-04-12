@@ -29,6 +29,17 @@ struct DownloadItemRowView: View {
             }
 
             if item.status == .completed {
+                if item.formatOptions.format == .transcript {
+                    let text = item.outputPath.flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+                    Button {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(text ?? "", forType: .string)
+                    } label: {
+                        Label("Copy Transcript", systemImage: "doc.on.clipboard")
+                    }
+                    .disabled(text == nil)
+                }
+
                 Button {
                     if let path = item.outputPath {
                         NSWorkspace.shared.activateFileViewerSelecting([path])

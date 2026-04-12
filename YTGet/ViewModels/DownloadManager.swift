@@ -251,6 +251,7 @@ final class DownloadManager {
             let mdURL = url.deletingPathExtension().deletingPathExtension().appendingPathExtension("md")
             try? markdown.write(to: mdURL, atomically: true, encoding: .utf8)
             try? fm.removeItem(at: url)
+            item.outputPath = mdURL
         }
     }
 
