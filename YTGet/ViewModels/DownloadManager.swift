@@ -19,6 +19,7 @@ final class DownloadManager {
     private let embedThumbnailKey = "embedThumbnail"
     private let embedMetadataKey = "embedMetadata"
     private let transcriptIncludeTimestampsKey = "transcriptIncludeTimestamps"
+    private let queueKey = "downloadQueue"
 
     var filenameTemplate: String {
         get { UserDefaults.standard.string(forKey: filenameTemplateKey) ?? "%(title)s.%(ext)s" }
@@ -39,6 +40,7 @@ final class DownloadManager {
 
     init() {
         loadPreferences()
+        loadQueue()
     }
 
     func loadPreferences() {
@@ -84,6 +86,7 @@ final class DownloadManager {
         let item = DownloadItem(url: url, formatOptions: opts)
         item.status = .fetchingInfo
         items.append(item)
+        saveQueue()
 
         Task { await fetchInfo(for: item) }
     }
@@ -164,6 +167,7 @@ final class DownloadManager {
             } else {
                 item.status = .failed(failureMessage ?? "Download failed")
             }
+            saveQueue()
         }
     }
 
@@ -171,6 +175,7 @@ final class DownloadManager {
         item.process?.terminate()
         item.status = .cancelled
         items.removeAll { $0.id == item.id }
+        saveQueue()
         Task { cleanupPartialFiles(for: item) }
     }
 
@@ -203,6 +208,28 @@ final class DownloadManager {
 
     func clearCompleted() {
         items.removeAll { $0.status.isFinal && $0.status != .failed("") }
+        saveQueue()
+    }
+
+    // MARK: - Queue Persistence
+
+    private func saveQueue() {
+        let persisted = items.map { $0.toPersistedItem() }
+        if let data = try? JSONEncoder().encode(persisted) {
+            UserDefaults.standard.set(data, forKey: queueKey)
+        }
+    }
+
+    private func loadQueue() {
+        guard let data = UserDefaults.standard.data(forKey: queueKey),
+              let persisted = try? JSONDecoder().decode([PersistedItem].self, from: data) else { return }
+
+        items = persisted.map { DownloadItem.from($0) }
+
+        // Re-fetch thumbnail images in the background
+        for item in items where item.thumbnailURL != nil {
+            Task { await loadThumbnail(for: item, from: item.thumbnailURL!) }
+        }
     }
 
     private func processTranscripts(for item: DownloadItem, startedAfter startTime: Date) {

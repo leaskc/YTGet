@@ -1,7 +1,7 @@
 import Foundation
 import AppKit
 
-enum DownloadStatus: Equatable {
+enum DownloadStatus: Equatable, Codable {
     case pending
     case fetchingInfo
     case downloading
@@ -15,15 +15,47 @@ enum DownloadStatus: Equatable {
         default: return false
         }
     }
+
+    // MARK: Codable
+    private enum CodingKeys: String, CodingKey { case type, message }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .pending:      try c.encode("pending",      forKey: .type)
+        case .fetchingInfo: try c.encode("fetchingInfo", forKey: .type)
+        case .downloading:  try c.encode("downloading",  forKey: .type)
+        case .completed:    try c.encode("completed",    forKey: .type)
+        case .cancelled:    try c.encode("cancelled",    forKey: .type)
+        case .failed(let msg):
+            try c.encode("failed", forKey: .type)
+            try c.encode(msg,      forKey: .message)
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        switch try c.decode(String.self, forKey: .type) {
+        case "pending":      self = .pending
+        case "fetchingInfo": self = .fetchingInfo
+        case "downloading":  self = .downloading
+        case "completed":    self = .completed
+        case "cancelled":    self = .cancelled
+        case "failed":
+            let msg = try c.decodeIfPresent(String.self, forKey: .message) ?? ""
+            self = .failed(msg)
+        default:             self = .failed("Unknown")
+        }
+    }
 }
 
-struct FormatOptions {
-    enum Format {
+struct FormatOptions: Codable {
+    enum Format: String, Codable {
         case video
         case audioOnly
         case transcript
     }
-    enum VideoQuality: String, CaseIterable {
+    enum VideoQuality: String, CaseIterable, Codable {
         case best   = "Best"
         case q2160  = "4K"
         case q1080  = "1080p"
@@ -39,7 +71,7 @@ struct FormatOptions {
         }
     }
 
-    enum AudioQuality: String, CaseIterable {
+    enum AudioQuality: String, CaseIterable, Codable {
         case best  = "Best"
         case q320  = "320k"
         case q192  = "192k"
@@ -65,9 +97,21 @@ struct FormatOptions {
     var embedMetadata: Bool = true
 }
 
+// Codable snapshot of a DownloadItem for queue persistence.
+struct PersistedItem: Codable {
+    let id: UUID
+    let url: String
+    let title: String
+    let thumbnailURL: URL?
+    let status: DownloadStatus
+    let formatOptions: FormatOptions
+    let outputPath: URL?
+    let progress: Double
+}
+
 @Observable
 final class DownloadItem: Identifiable {
-    let id = UUID()
+    let id: UUID
     let url: String
     var title: String = ""
     var thumbnailURL: URL?
@@ -80,8 +124,39 @@ final class DownloadItem: Identifiable {
     var outputPath: URL?
     var process: Process?
 
-    init(url: String, formatOptions: FormatOptions = FormatOptions()) {
+    init(url: String, formatOptions: FormatOptions = FormatOptions(), id: UUID = UUID()) {
+        self.id = id
         self.url = url
         self.formatOptions = formatOptions
+    }
+
+    func toPersistedItem() -> PersistedItem {
+        PersistedItem(
+            id: id,
+            url: url,
+            title: title,
+            thumbnailURL: thumbnailURL,
+            status: status,
+            formatOptions: formatOptions,
+            outputPath: outputPath,
+            progress: progress
+        )
+    }
+
+    static func from(_ persisted: PersistedItem) -> DownloadItem {
+        let item = DownloadItem(url: persisted.url, formatOptions: persisted.formatOptions, id: persisted.id)
+        item.title = persisted.title.isEmpty ? persisted.url : persisted.title
+        item.thumbnailURL = persisted.thumbnailURL
+        item.outputPath = persisted.outputPath
+        item.progress = persisted.progress
+
+        switch persisted.status {
+        case .downloading, .pending, .fetchingInfo:
+            item.status = .failed("Interrupted")
+        default:
+            item.status = persisted.status
+        }
+
+        return item
     }
 }
