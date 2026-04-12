@@ -10,6 +10,7 @@ final class DownloadManager {
     var globalFormat: FormatOptions.Format = .video
     var globalQuality: FormatOptions.VideoQuality = .best
     var globalAudioQuality: FormatOptions.AudioQuality = .best
+    var globalSubtitleLanguage: String = "en"
     var isProcessingQueue = false
 
     private let runner = YTDLPRunner()
@@ -17,6 +18,7 @@ final class DownloadManager {
     private let filenameTemplateKey = "filenameTemplate"
     private let embedThumbnailKey = "embedThumbnail"
     private let embedMetadataKey = "embedMetadata"
+    private let transcriptIncludeTimestampsKey = "transcriptIncludeTimestamps"
 
     var filenameTemplate: String {
         get { UserDefaults.standard.string(forKey: filenameTemplateKey) ?? "%(title)s.%(ext)s" }
@@ -29,6 +31,10 @@ final class DownloadManager {
     var embedMetadata: Bool {
         get { UserDefaults.standard.object(forKey: embedMetadataKey) as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: embedMetadataKey) }
+    }
+    var transcriptIncludeTimestamps: Bool {
+        get { UserDefaults.standard.object(forKey: transcriptIncludeTimestampsKey) as? Bool ?? false }
+        set { UserDefaults.standard.set(newValue, forKey: transcriptIncludeTimestampsKey) }
     }
 
     init() {
@@ -69,6 +75,8 @@ final class DownloadManager {
         opts.format = globalFormat
         opts.quality = globalQuality
         opts.audioQuality = globalAudioQuality
+        opts.subtitleLanguage = globalSubtitleLanguage
+        opts.includeTimestamps = transcriptIncludeTimestamps
         opts.filenameTemplate = filenameTemplate
         opts.embedThumbnail = embedThumbnail
         opts.embedMetadata = embedMetadata
@@ -117,6 +125,7 @@ final class DownloadManager {
     }
 
     private func downloadItem(_ item: DownloadItem) async {
+        let downloadStartTime = Date()
         item.status = .downloading
         item.progress = 0
 
@@ -148,6 +157,9 @@ final class DownloadManager {
                 item.progress = 1.0
                 item.speed = ""
                 item.eta = ""
+                if item.formatOptions.format == .transcript && !item.formatOptions.includeTimestamps {
+                    processTranscripts(for: item, startedAfter: downloadStartTime)
+                }
                 sendNotification(for: item)
             } else {
                 item.status = .failed(failureMessage ?? "Download failed")
@@ -191,6 +203,28 @@ final class DownloadManager {
 
     func clearCompleted() {
         items.removeAll { $0.status.isFinal && $0.status != .failed("") }
+    }
+
+    private func processTranscripts(for item: DownloadItem, startedAfter startTime: Date) {
+        let fm = FileManager.default
+        guard let contents = try? fm.contentsOfDirectory(
+            at: outputFolder,
+            includingPropertiesForKeys: [.contentModificationDateKey]
+        ) else { return }
+
+        for url in contents where url.pathExtension == "srt" {
+            guard let attrs = try? url.resourceValues(forKeys: [.contentModificationDateKey]),
+                  let modDate = attrs.contentModificationDate,
+                  modDate >= startTime else { continue }
+
+            guard let srtContent = try? String(contentsOf: url, encoding: .utf8) else { continue }
+            let markdown = TranscriptProcessor.toMarkdown(from: srtContent, title: item.title, sourceURL: item.url)
+
+            // VideoTitle.en.srt → VideoTitle.md
+            let mdURL = url.deletingPathExtension().deletingPathExtension().appendingPathExtension("md")
+            try? markdown.write(to: mdURL, atomically: true, encoding: .utf8)
+            try? fm.removeItem(at: url)
+        }
     }
 
     private func sendNotification(for item: DownloadItem) {

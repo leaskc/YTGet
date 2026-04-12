@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var filenameTemplate: String = ""
     @State private var embedThumbnail: Bool = true
     @State private var embedMetadata: Bool = true
+    @State private var transcriptIncludeTimestamps: Bool = false
 
     var body: some View {
         @Bindable var m = manager
@@ -17,6 +18,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     generalSection
                     downloadsSection
+                    transcriptsSection
                     aboutSection
                 }
                 .padding(24)
@@ -28,6 +30,7 @@ struct SettingsView: View {
             filenameTemplate = manager.filenameTemplate
             embedThumbnail = manager.embedThumbnail
             embedMetadata = manager.embedMetadata
+            transcriptIncludeTimestamps = manager.transcriptIncludeTimestamps
         }
     }
 
@@ -109,6 +112,26 @@ struct SettingsView: View {
                     .onChange(of: embedMetadata) { _, newValue in
                         manager.embedMetadata = newValue
                     }
+            }
+        }
+    }
+
+    private var transcriptsSection: some View {
+        SettingsSectionView(title: "Transcripts") {
+            SettingsRow(label: "Include Timestamps") {
+                Toggle("", isOn: $transcriptIncludeTimestamps)
+                    .toggleStyle(.switch)
+                    .tint(.appPrimary)
+                    .onChange(of: transcriptIncludeTimestamps) { _, newValue in
+                        manager.transcriptIncludeTimestamps = newValue
+                    }
+            }
+            SettingsRow(label: "") {
+                Text(transcriptIncludeTimestamps
+                     ? "Saves an .srt file with timing data."
+                     : "Saves a clean .md file with text only.")
+                    .font(.system(size: 11))
+                    .foregroundColor(.onSurfaceVariant.opacity(0.6))
             }
         }
     }

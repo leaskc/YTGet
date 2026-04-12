@@ -40,15 +40,15 @@ final class YTDLPRunner {
         case .video:
             args += ["--format", opts.quality.formatString]
             args += ["--merge-output-format", "mp4"]
+            if opts.embedMetadata { args += ["--embed-metadata"] }
         case .audioOnly:
             args += ["--extract-audio", "--audio-format", "mp3", "--audio-quality", opts.audioQuality.audioQualityFlag]
-            if opts.embedThumbnail {
-                args += ["--embed-thumbnail"]
-            }
-        }
-
-        if opts.embedMetadata {
-            args += ["--embed-metadata"]
+            if opts.embedThumbnail { args += ["--embed-thumbnail"] }
+            if opts.embedMetadata { args += ["--embed-metadata"] }
+        case .transcript:
+            let lang = opts.subtitleLanguage.trimmingCharacters(in: .whitespaces).isEmpty ? "en" : opts.subtitleLanguage
+            args += ["--write-subs", "--write-auto-subs", "--sub-langs", lang]
+            args += ["--convert-subs", "srt", "--skip-download"]
         }
 
         let template = opts.filenameTemplate.isEmpty ? "%(title)s.%(ext)s" : opts.filenameTemplate

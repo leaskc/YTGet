@@ -21,6 +21,7 @@ struct FormatOptions {
     enum Format {
         case video
         case audioOnly
+        case transcript
     }
     enum VideoQuality: String, CaseIterable {
         case best   = "Best"
@@ -57,6 +58,8 @@ struct FormatOptions {
     var format: Format = .video
     var quality: VideoQuality = .best
     var audioQuality: AudioQuality = .best
+    var subtitleLanguage: String = "en"
+    var includeTimestamps: Bool = false
     var filenameTemplate: String = "%(title)s.%(ext)s"
     var embedThumbnail: Bool = true
     var embedMetadata: Bool = true

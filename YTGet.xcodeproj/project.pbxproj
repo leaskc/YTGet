@@ -22,6 +22,7 @@
 		8B5D8C2A2A3F0B5D00F1E20D /* DependencySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E10D /* DependencySetupView.swift */; };
 		8B5D8C2A2A3F0B5D00F1E20E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E10E /* Assets.xcassets */; };
 		8B5D8C2A2A3F0B5D00F1E20F /* ProgressParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E111 /* ProgressParserTests.swift */; };
+		8B5D8C2A2A3F0B5D00F1E211 /* TranscriptProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E114 /* TranscriptProcessor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		8B5D8C2A2A3F0B5D00F1E111 /* ProgressParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressParserTests.swift; sourceTree = "<group>"; };
 		8B5D8C2A2A3F0B5D00F1E112 /* YTGetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YTGetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B5D8C2A2A3F0B5D00F1E113 /* YTGet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YTGet.entitlements; sourceTree = "<group>"; };
+		8B5D8C2A2A3F0B5D00F1E114 /* TranscriptProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptProcessor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 				8B5D8C2A2A3F0B5D00F1E104 /* DependencyChecker.swift */,
 				8B5D8C2A2A3F0B5D00F1E105 /* YTDLPRunner.swift */,
 				8B5D8C2A2A3F0B5D00F1E106 /* ProgressParser.swift */,
+				8B5D8C2A2A3F0B5D00F1E114 /* TranscriptProcessor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 				8B5D8C2A2A3F0B5D00F1E204 /* DependencyChecker.swift in Sources */,
 				8B5D8C2A2A3F0B5D00F1E205 /* YTDLPRunner.swift in Sources */,
 				8B5D8C2A2A3F0B5D00F1E206 /* ProgressParser.swift in Sources */,
+				8B5D8C2A2A3F0B5D00F1E211 /* TranscriptProcessor.swift in Sources */,
 				8B5D8C2A2A3F0B5D00F1E207 /* DownloadManager.swift in Sources */,
 				8B5D8C2A2A3F0B5D00F1E208 /* AppColors.swift in Sources */,
 				8B5D8C2A2A3F0B5D00F1E209 /* FormatSelectorView.swift in Sources */,
@@ -417,7 +421,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ytget.YTGet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -443,7 +447,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ytget.YTGet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -460,7 +464,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ytget.YTGetTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -478,7 +482,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ytget.YTGetTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;

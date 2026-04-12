@@ -209,7 +209,7 @@ struct ContentView: View {
             Text("Format:")
                 .font(.system(size: 13))
                 .foregroundColor(.onSurfaceVariant)
-            FormatSelectorView(format: $m.globalFormat, quality: $m.globalQuality, audioQuality: $m.globalAudioQuality)
+            FormatSelectorView(format: $m.globalFormat, quality: $m.globalQuality, audioQuality: $m.globalAudioQuality, subtitleLanguage: $m.globalSubtitleLanguage)
             Spacer()
         }
         .padding(.horizontal, 16)
