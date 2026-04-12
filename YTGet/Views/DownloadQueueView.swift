@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DownloadQueueView: View {
     let items: [DownloadItem]
+    let outputFolder: URL
     let onCancel: (DownloadItem) -> Void
     let onRetry: (DownloadItem) -> Void
 
@@ -14,6 +15,7 @@ struct DownloadQueueView: View {
                     ForEach(items) { item in
                         DownloadItemRowView(
                             item: item,
+                            outputFolder: outputFolder,
                             onCancel: { onCancel(item) },
                             onRetry: { onRetry(item) }
                         )

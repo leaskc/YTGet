@@ -35,6 +35,7 @@ struct ContentView: View {
 
             DownloadQueueView(
                 items: manager.items,
+                outputFolder: manager.outputFolder,
                 onCancel: { manager.cancelItem($0) },
                 onRetry: { manager.retryItem($0) }
             )

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DownloadItemRowView: View {
     let item: DownloadItem
+    let outputFolder: URL
     let onCancel: () -> Void
     let onRetry: () -> Void
 
@@ -19,6 +20,26 @@ struct DownloadItemRowView: View {
         .background(Color.surfaceContainer)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: Color(hex: "#0e0e0e").opacity(0.4), radius: 8, x: 0, y: 2)
+        .contextMenu {
+            Button {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(item.url, forType: .string)
+            } label: {
+                Label("Copy Source URL", systemImage: "link")
+            }
+
+            if item.status == .completed {
+                Button {
+                    if let path = item.outputPath {
+                        NSWorkspace.shared.activateFileViewerSelecting([path])
+                    } else {
+                        NSWorkspace.shared.open(outputFolder)
+                    }
+                } label: {
+                    Label("Open in Finder", systemImage: "folder")
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -49,8 +70,24 @@ struct DownloadItemRowView: View {
                 .foregroundColor(.onSurface)
                 .lineLimit(1)
 
+            formatBadge
             statusBadge
         }
+    }
+
+    private var formatBadge: some View {
+        let (label, icon): (String, String) = switch item.formatOptions.format {
+        case .video:      ("Video", "video.fill")
+        case .audioOnly:  ("Audio", "music.note")
+        case .transcript: ("Transcript", "text.bubble")
+        }
+        return Label(label, systemImage: icon)
+            .font(.system(size: 10, weight: .medium))
+            .foregroundColor(.onSurfaceVariant.opacity(0.7))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color.surfaceContainerHighest)
+            .clipShape(Capsule())
     }
 
     private var displayTitle: String {
