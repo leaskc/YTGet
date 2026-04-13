@@ -37,7 +37,8 @@ struct ContentView: View {
                 items: manager.items,
                 outputFolder: manager.outputFolder,
                 onCancel: { manager.cancelItem($0) },
-                onRetry: { manager.retryItem($0) }
+                onRetry: { manager.retryItem($0) },
+                onRemove: { manager.removeItem($0) }
             )
 
             divider

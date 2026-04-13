@@ -5,6 +5,7 @@ struct DownloadItemRowView: View {
     let outputFolder: URL
     let onCancel: () -> Void
     let onRetry: () -> Void
+    let onRemove: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -49,6 +50,14 @@ struct DownloadItemRowView: View {
                 } label: {
                     Label("Open in Finder", systemImage: "folder")
                 }
+            }
+
+            Divider()
+
+            Button(role: .destructive) {
+                onRemove()
+            } label: {
+                Label("Remove", systemImage: "trash")
             }
         }
     }

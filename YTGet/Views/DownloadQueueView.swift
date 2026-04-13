@@ -5,6 +5,7 @@ struct DownloadQueueView: View {
     let outputFolder: URL
     let onCancel: (DownloadItem) -> Void
     let onRetry: (DownloadItem) -> Void
+    let onRemove: (DownloadItem) -> Void
 
     var body: some View {
         if items.isEmpty {
@@ -17,7 +18,8 @@ struct DownloadQueueView: View {
                             item: item,
                             outputFolder: outputFolder,
                             onCancel: { onCancel(item) },
-                            onRetry: { onRetry(item) }
+                            onRetry: { onRetry(item) },
+                            onRemove: { onRemove(item) }
                         )
                     }
                 }

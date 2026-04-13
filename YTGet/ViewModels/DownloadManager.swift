@@ -198,6 +198,12 @@ final class DownloadManager {
         }
     }
 
+    func removeItem(_ item: DownloadItem) {
+        item.process?.terminate()
+        items.removeAll { $0.id == item.id }
+        saveQueue()
+    }
+
     func retryItem(_ item: DownloadItem) {
         item.status = .pending
         item.progress = 0
