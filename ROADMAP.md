@@ -12,4 +12,9 @@ Feature ideas and planned work, roughly in priority order.
 
 - **Parallel downloads** — currently locked to sequential; allow configurable concurrency (marked "coming soon" in Settings)
 - **Per-item format selection** — currently format is global; allow each queue item to have its own format setting
+- **File size display** — file size is already parsed from yt-dlp output but not shown in the queue item row; small addition to surface it alongside speed and ETA
+- **Playlist / channel downloading** — download all videos from a playlist or channel URL
+- **Browser cookie import** — pass browser cookies to yt-dlp for age-restricted or member-only content
+- **Proxy support** — configurable proxy for yt-dlp downloads
+- **Scheduled downloads** — queue downloads to start at a specified time
 - **iOS/iPadOS companion app** — YTTranscript, transcript-only companion (spec drafted separately)
