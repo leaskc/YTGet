@@ -128,7 +128,11 @@ final class DownloadManager {
     }
 
     private func downloadItem(_ item: DownloadItem) async {
-        let downloadStartTime = Date()
+        // Snapshot existing files before download so we can reliably detect new ones
+        let existingFiles = (try? FileManager.default.contentsOfDirectory(
+            at: outputFolder, includingPropertiesForKeys: nil
+        ))?.map { $0.lastPathComponent } ?? []
+
         item.status = .downloading
         item.progress = 0
 
@@ -160,8 +164,12 @@ final class DownloadManager {
                 item.progress = 1.0
                 item.speed = ""
                 item.eta = ""
-                if item.formatOptions.format == .transcript && !item.formatOptions.includeTimestamps {
-                    processTranscripts(for: item, startedAfter: downloadStartTime)
+                if item.formatOptions.format == .transcript {
+                    let found = processTranscripts(for: item, existingFiles: existingFiles)
+                    if !found {
+                        item.status = .failed("No transcript available for this video")
+                        saveQueue()
+                    }
                 }
                 sendNotification(for: item)
             } else {
@@ -238,27 +246,38 @@ final class DownloadManager {
         }
     }
 
-    private func processTranscripts(for item: DownloadItem, startedAfter startTime: Date) {
+    @discardableResult
+    private func processTranscripts(for item: DownloadItem, existingFiles: [String]) -> Bool {
         let fm = FileManager.default
         guard let contents = try? fm.contentsOfDirectory(
             at: outputFolder,
-            includingPropertiesForKeys: [.contentModificationDateKey]
-        ) else { return }
+            includingPropertiesForKeys: nil
+        ) else { return false }
 
-        for url in contents where url.pathExtension == "srt" {
-            guard let attrs = try? url.resourceValues(forKeys: [.contentModificationDateKey]),
-                  let modDate = attrs.contentModificationDate,
-                  modDate >= startTime else { continue }
-
-            guard let srtContent = try? String(contentsOf: url, encoding: .utf8) else { continue }
-            let markdown = TranscriptProcessor.toMarkdown(from: srtContent, title: item.title, sourceURL: item.url)
-
-            // VideoTitle.en.srt → VideoTitle.md
-            let mdURL = url.deletingPathExtension().deletingPathExtension().appendingPathExtension("md")
-            try? markdown.write(to: mdURL, atomically: true, encoding: .utf8)
-            try? fm.removeItem(at: url)
-            item.outputPath = mdURL
+        // Find .srt files that didn't exist before the download started
+        let newSRTs = contents.filter {
+            $0.pathExtension == "srt" && !existingFiles.contains($0.lastPathComponent)
         }
+
+        guard !newSRTs.isEmpty else { return false }
+
+        if item.formatOptions.includeTimestamps {
+            // Keep the .srt as-is, just record the path
+            item.outputPath = newSRTs[0]
+        } else {
+            for url in newSRTs {
+                guard let srtContent = try? String(contentsOf: url, encoding: .utf8) else { continue }
+                let markdown = TranscriptProcessor.toMarkdown(from: srtContent, title: item.title, sourceURL: item.url)
+
+                // VideoTitle.en.srt → VideoTitle.md
+                let mdURL = url.deletingPathExtension().deletingPathExtension().appendingPathExtension("md")
+                try? markdown.write(to: mdURL, atomically: true, encoding: .utf8)
+                try? fm.removeItem(at: url)
+                item.outputPath = mdURL
+            }
+        }
+
+        return true
     }
 
     private func sendNotification(for item: DownloadItem) {
