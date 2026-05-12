@@ -1,10 +1,11 @@
 #!/bin/bash
 # Usage: ./build-dmg.sh /path/to/YTGet.app
-# Builds a distributable DMG and signs it for Sparkle auto-updates.
+# Builds a distributable DMG, signs it for Sparkle, and updates appcast.xml.
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 APP=$1
 
 if [ -z "$APP" ]; then
@@ -13,6 +14,7 @@ if [ -z "$APP" ]; then
 fi
 
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
+BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$APP/Contents/Info.plist")
 OUTPUT="${SCRIPT_DIR}/YTGet-${VERSION}.dmg"
 
 rm -f "$OUTPUT"
@@ -30,21 +32,46 @@ create-dmg \
 
 echo "Created: $OUTPUT"
 
-# Sign the DMG for Sparkle
+# Sign the DMG and update appcast.xml
 SIGN_UPDATE="${SCRIPT_DIR}/sign_update"
-if [ -f "$SIGN_UPDATE" ]; then
-  echo ""
-  echo "Signing DMG for Sparkle..."
-  SIGNATURE=$("$SIGN_UPDATE" "$OUTPUT")
-  echo ""
-  echo "✅ Done. Add this to appcast.xml for v${VERSION}:"
-  echo ""
-  echo "  <enclosure"
-  echo "    url=\"https://github.com/leaskc/YTGet/releases/download/v${VERSION}/YTGet-${VERSION}.dmg\""
-  echo "    $SIGNATURE"
-  echo "    length=\"$(wc -c < "$OUTPUT" | tr -d ' ')\""
-  echo "    type=\"application/octet-stream\""
-  echo "  />"
-else
+APPCAST="${REPO_ROOT}/appcast.xml"
+
+if [ ! -f "$SIGN_UPDATE" ]; then
   echo "⚠️  sign_update not found — skipping Sparkle signature."
+  exit 0
 fi
+
+echo ""
+echo "Signing DMG for Sparkle..."
+SIGN_OUTPUT=$("$SIGN_UPDATE" "$OUTPUT")
+
+# Extract edSignature from sign_update output
+ED_SIG=$(echo "$SIGN_OUTPUT" | grep -o 'edSignature="[^"]*"' | sed 's/edSignature="//' | tr -d '"')
+DMG_SIZE=$(wc -c < "$OUTPUT" | tr -d ' ')
+PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
+DMG_URL="https://github.com/leaskc/YTGet/releases/download/v${VERSION}/YTGet-${VERSION}.dmg"
+RELEASE_NOTES_URL="https://github.com/leaskc/YTGet/releases/tag/v${VERSION}"
+
+# Build the new <item> block
+NEW_ITEM="    <item>
+      <title>YTGet ${VERSION}<\/title>
+      <sparkle:version>${BUILD}<\/sparkle:version>
+      <sparkle:shortVersionString>${VERSION}<\/sparkle:shortVersionString>
+      <sparkle:releaseNotesLink>${RELEASE_NOTES_URL}<\/sparkle:releaseNotesLink>
+      <pubDate>${PUB_DATE}<\/pubDate>
+      <enclosure
+        url=\"${DMG_URL}\"
+        sparkle:edSignature=\"${ED_SIG}\"
+        length=\"${DMG_SIZE}\"
+        type=\"application\/octet-stream\"
+      \/>
+    <\/item>"
+
+# Insert new item before the first existing <item> in appcast.xml
+sed -i '' "s|    <item>|${NEW_ITEM}\n\n    <item>|1" "$APPCAST"
+
+echo "✅ appcast.xml updated for v${VERSION} (build ${BUILD})"
+echo ""
+echo "Next steps:"
+echo "  1. git add appcast.xml && git commit -m 'Release ${VERSION}' && git push"
+echo "  2. gh release create v${VERSION} '${OUTPUT}' --title 'YTGet ${VERSION}'"
