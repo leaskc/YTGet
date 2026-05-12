@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F313B402FB3709E0019C8BF /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 6F313B3F2FB3709E0019C8BF /* Sparkle */; };
 		8B5D8C2A2A3F0B5D00F1E201 /* YTGetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E101 /* YTGetApp.swift */; };
 		8B5D8C2A2A3F0B5D00F1E202 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E102 /* ContentView.swift */; };
 		8B5D8C2A2A3F0B5D00F1E203 /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5D8C2A2A3F0B5D00F1E103 /* DownloadItem.swift */; };
@@ -63,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F313B402FB3709E0019C8BF /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +226,9 @@
 				Base,
 			);
 			mainGroup = 8B5D8C2A2A3F0B5D00F1E030;
+			packageReferences = (
+				6F313B3E2FB3709E0019C8BF /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			productRefGroup = 8B5D8C2A2A3F0B5D00F1E036 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -259,7 +264,6 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -441,10 +445,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = CBHV6PGRWG;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = YTGet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -469,10 +473,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = CBHV6PGRWG;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = YTGet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -557,6 +561,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6F313B3E2FB3709E0019C8BF /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6F313B3F2FB3709E0019C8BF /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6F313B3E2FB3709E0019C8BF /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8B5D8C2A2A3F0B5D00F1E001 /* Project object */;
 }
