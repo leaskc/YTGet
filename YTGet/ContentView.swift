@@ -63,6 +63,20 @@ struct ContentView: View {
                 checkUpdateBanners()
             }
         }
+        .alert(
+            "File Already Exists",
+            isPresented: Binding(
+                get: { manager.pendingConflict != nil },
+                set: { if !$0 { manager.resolveConflict(.cancel) } }
+            ),
+            presenting: manager.pendingConflict
+        ) { conflict in
+            Button("Use Unique Filename") { manager.resolveConflict(.uniqueFilename) }
+            Button("Overwrite", role: .destructive) { manager.resolveConflict(.overwrite) }
+            Button("Cancel", role: .cancel) { manager.resolveConflict(.cancel) }
+        } message: { conflict in
+            Text("\"\(conflict.filename)\" already exists in the output folder. What would you like to do?")
+        }
         .alert("Homebrew Not Found", isPresented: $showBrewMissingAlert) {
             Button("Visit brew.sh") {
                 NSWorkspace.shared.open(URL(string: "https://brew.sh")!)

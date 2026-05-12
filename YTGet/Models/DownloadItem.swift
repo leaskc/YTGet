@@ -123,6 +123,9 @@ final class DownloadItem: Identifiable {
     var formatOptions: FormatOptions
     var outputPath: URL?
     var process: Process?
+    /// Set at runtime when the user chooses to overwrite an existing file.
+    /// Not persisted — resets to false on restore so the conflict prompt reruns if needed.
+    var forceOverwrite: Bool = false
 
     init(url: String, formatOptions: FormatOptions = FormatOptions(), id: UUID = UUID()) {
         self.id = id

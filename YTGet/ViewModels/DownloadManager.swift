@@ -2,6 +2,18 @@ import Foundation
 import AppKit
 import UserNotifications
 
+enum ConflictResolution {
+    case uniqueFilename
+    case overwrite
+    case cancel
+}
+
+struct FileConflict {
+    let item: DownloadItem
+    let filename: String
+    let existingURL: URL
+}
+
 @Observable
 @MainActor
 final class DownloadManager {
@@ -12,7 +24,9 @@ final class DownloadManager {
     var globalAudioQuality: FormatOptions.AudioQuality = .best
     var globalSubtitleLanguage: String = "en"
     var isProcessingQueue = false
+    var pendingConflict: FileConflict? = nil
 
+    private var conflictContinuation: CheckedContinuation<ConflictResolution, Never>? = nil
     private let runner = YTDLPRunner()
     private let outputFolderKey = "outputFolder"
     private let filenameTemplateKey = "filenameTemplate"
@@ -133,6 +147,40 @@ final class DownloadManager {
             at: outputFolder, includingPropertiesForKeys: nil
         ))?.map { $0.lastPathComponent } ?? []
 
+        // Check whether the predicted output filename already exists and, if so,
+        // pause the queue and ask the user how to proceed.
+        if let filename = predictedFilename(for: item) {
+            let fileURL = outputFolder.appendingPathComponent(filename)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                let resolution: ConflictResolution = await withCheckedContinuation { continuation in
+                    self.conflictContinuation = continuation
+                    self.pendingConflict = FileConflict(item: item, filename: filename, existingURL: fileURL)
+                }
+                switch resolution {
+                case .uniqueFilename:
+                    // Insert [%(id)s] before .%(ext)s so yt-dlp appends the video ID
+                    let tmpl = item.formatOptions.filenameTemplate
+                    if tmpl.hasSuffix(".%(ext)s") {
+                        item.formatOptions.filenameTemplate =
+                            String(tmpl.dropLast(".%(ext)s".count)) + " [%(id)s].%(ext)s"
+                    } else {
+                        item.formatOptions.filenameTemplate = tmpl + " [%(id)s]"
+                    }
+                case .overwrite:
+                    item.forceOverwrite = true
+                    // Remove completed queue entries that pointed to the file about to be replaced
+                    items.removeAll { other in
+                        other.id != item.id && other.outputPath?.lastPathComponent == filename
+                    }
+                    saveQueue()
+                case .cancel:
+                    items.removeAll { $0.id == item.id }
+                    saveQueue()
+                    return
+                }
+            }
+        }
+
         item.status = .downloading
         item.progress = 0
 
@@ -223,6 +271,46 @@ final class DownloadManager {
     func clearCompleted() {
         items.removeAll { $0.status.isFinal && $0.status != .failed("") }
         saveQueue()
+    }
+
+    // MARK: - Conflict Resolution
+
+    /// Called by the UI when the user picks a resolution from the conflict alert.
+    func resolveConflict(_ resolution: ConflictResolution) {
+        pendingConflict = nil
+        let cont = conflictContinuation
+        conflictContinuation = nil   // nil out BEFORE resuming to prevent double-resume
+        cont?.resume(returning: resolution)
+    }
+
+    /// Predicts the final output filename for `item` based on its title and format.
+    /// Returns `nil` if the title is unknown or the template isn't predictable.
+    private func predictedFilename(for item: DownloadItem) -> String? {
+        guard !item.title.isEmpty else { return nil }
+        let template = item.formatOptions.filenameTemplate
+        // Only handle templates that contain %(title)s so we can substitute the known title.
+        guard template.contains("%(title)s") else { return nil }
+
+        let ext: String
+        switch item.formatOptions.format {
+        case .video:
+            ext = "mp4"
+        case .audioOnly:
+            ext = "mp3"
+        case .transcript:
+            if item.formatOptions.includeTimestamps {
+                let lang = item.formatOptions.subtitleLanguage
+                    .trimmingCharacters(in: .whitespaces)
+                let l = lang.isEmpty ? "en" : lang
+                ext = "\(l).srt"
+            } else {
+                ext = "md"
+            }
+        }
+
+        return template
+            .replacingOccurrences(of: "%(title)s", with: item.title)
+            .replacingOccurrences(of: "%(ext)s",   with: ext)
     }
 
     // MARK: - Queue Persistence

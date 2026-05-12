@@ -55,6 +55,7 @@ final class YTDLPRunner {
         let outputTemplate = outputDir.path + "/" + template
         args += ["--output", outputTemplate]
         args += ["--newline"]
+        if item.forceOverwrite { args += ["--force-overwrites"] }
         args += [item.url]
 
         return args
