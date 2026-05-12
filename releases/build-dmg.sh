@@ -52,23 +52,28 @@ PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
 DMG_URL="https://github.com/leaskc/YTGet/releases/download/v${VERSION}/YTGet-${VERSION}.dmg"
 RELEASE_NOTES_URL="https://github.com/leaskc/YTGet/releases/tag/v${VERSION}"
 
-# Build the new <item> block
-NEW_ITEM="    <item>
-      <title>YTGet ${VERSION}<\/title>
-      <sparkle:version>${BUILD}<\/sparkle:version>
-      <sparkle:shortVersionString>${VERSION}<\/sparkle:shortVersionString>
-      <sparkle:releaseNotesLink>${RELEASE_NOTES_URL}<\/sparkle:releaseNotesLink>
-      <pubDate>${PUB_DATE}<\/pubDate>
-      <enclosure
-        url=\"${DMG_URL}\"
-        sparkle:edSignature=\"${ED_SIG}\"
-        length=\"${DMG_SIZE}\"
-        type=\"application\/octet-stream\"
-      \/>
-    <\/item>"
+# Insert new <item> before the first existing one using Python (BSD sed
+# can't handle multi-line replacement strings reliably on macOS)
+python3 - <<PYEOF
+appcast = open("${APPCAST}").read()
 
-# Insert new item before the first existing <item> in appcast.xml
-sed -i '' "s|    <item>|${NEW_ITEM}\n\n    <item>|1" "$APPCAST"
+new_item = """    <item>
+      <title>YTGet ${VERSION}</title>
+      <sparkle:version>${BUILD}</sparkle:version>
+      <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
+      <sparkle:releaseNotesLink>${RELEASE_NOTES_URL}</sparkle:releaseNotesLink>
+      <pubDate>${PUB_DATE}</pubDate>
+      <enclosure
+        url="${DMG_URL}"
+        sparkle:edSignature="${ED_SIG}"
+        length="${DMG_SIZE}"
+        type="application/octet-stream"
+      />
+    </item>"""
+
+updated = appcast.replace("    <item>", new_item + "\n\n    <item>", 1)
+open("${APPCAST}", "w").write(updated)
+PYEOF
 
 echo "✅ appcast.xml updated for v${VERSION} (build ${BUILD})"
 echo ""
