@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+     xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>YTGet</title>
+    <link>https://github.com/leaskc/YTGet</link>
+    <description>YTGet release feed</description>
+    <language>en</language>
+
+    <item>
+      <title>YTGet 1.3.2</title>
+      <sparkle:version>29</sparkle:version>
+      <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
+      <sparkle:releaseNotesLink>https://github.com/leaskc/YTGet/releases/tag/v1.3.2</sparkle:releaseNotesLink>
+      <pubDate>Tue, 12 May 2026 00:00:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/leaskc/YTGet/releases/download/v1.3.2/YTGet-1.3.2.dmg"
+        sparkle:edSignature="FILL_IN_AFTER_SIGNING"
+        length="0"
+        type="application/octet-stream"
+      />
+    </item>
+
+  </channel>
+</rss>

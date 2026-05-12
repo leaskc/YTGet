@@ -1,12 +1,51 @@
 import SwiftUI
 import UserNotifications
+import Combine
+import Sparkle
+
+// MARK: - Check for Updates
+
+private final class CheckForUpdatesViewModel: ObservableObject {
+    @Published var canCheckForUpdates = false
+    private var cancellable: AnyCancellable?
+
+    init(updater: SPUUpdater) {
+        cancellable = updater.publisher(for: \.canCheckForUpdates)
+            .assign(to: \.canCheckForUpdates, on: self)
+    }
+}
+
+private struct CheckForUpdatesView: View {
+    @ObservedObject var viewModel: CheckForUpdatesViewModel
+    let updater: SPUUpdater
+
+    init(updater: SPUUpdater) {
+        self.updater = updater
+        viewModel = CheckForUpdatesViewModel(updater: updater)
+    }
+
+    var body: some View {
+        Button("Check for Updates…") {
+            updater.checkForUpdates()
+        }
+        .disabled(!viewModel.canCheckForUpdates)
+    }
+}
+
+// MARK: - App Entry Point
 
 @main
 struct YTGetApp: App {
     @State private var manager = DownloadManager()
     @State private var checker = DependencyChecker()
+    private let updaterController: SPUStandardUpdaterController
 
     init() {
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
     }
 
@@ -19,6 +58,12 @@ struct YTGetApp: App {
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
         .defaultSize(width: 680, height: 560)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updaterController.updater)
+                Divider()
+            }
+        }
 
         Settings {
             SettingsView()
@@ -26,8 +71,9 @@ struct YTGetApp: App {
                 .environment(checker)
         }
     }
-
 }
+
+// MARK: - Notification Delegate
 
 final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationDelegate()
