@@ -13,20 +13,6 @@
       <sparkle:version>32</sparkle:version>
       <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
       <sparkle:releaseNotesLink>https://github.com/leaskc/YTGet/releases/tag/v1.4.0</sparkle:releaseNotesLink>
-      <pubDate>Tue, 12 May 2026 15:04:38 +0000</pubDate>
-      <enclosure
-        url="https://github.com/leaskc/YTGet/releases/download/v1.4.0/YTGet-1.4.0.dmg"
-        sparkle:edSignature="RzpxyCYQLFzCO0WWXZiEID1PM3TpKrQ1FD3LHTI5noa/CA/hEbRP+7e5rZ/LsVvwB90IEkYTX6+itRYkuUzhBg=="
-        length="3360335"
-        type="application/octet-stream"
-      />
-    </item>
-
-    <item>
-      <title>YTGet 1.4.0</title>
-      <sparkle:version>32</sparkle:version>
-      <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
-      <sparkle:releaseNotesLink>https://github.com/leaskc/YTGet/releases/tag/v1.4.0</sparkle:releaseNotesLink>
       <pubDate>Tue, 12 May 2026 15:01:44 +0000</pubDate>
       <enclosure
         url="https://github.com/leaskc/YTGet/releases/download/v1.4.0/YTGet-1.4.0.dmg"
