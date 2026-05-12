@@ -168,6 +168,7 @@
 				8B5D8C2A2A3F0B5D00F1E301 /* Sources */,
 				8B5D8C2A2A3F0B5D00F1E303 /* Frameworks */,
 				8B5D8C2A2A3F0B5D00F1E302 /* Resources */,
+				8B5D8C2A2A3F0B5D00F1E500 /* Set Build Number */,
 			);
 			buildRules = (
 			);
@@ -243,6 +244,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8B5D8C2A2A3F0B5D00F1E500 /* Set Build Number */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Set Build Number";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "BUILD_NUMBER=$(git -C \"$SRCROOT\" rev-list --count HEAD 2>/dev/null || echo 1)\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $BUILD_NUMBER\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8B5D8C2A2A3F0B5D00F1E301 /* Sources */ = {
@@ -418,6 +441,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = CBHV6PGRWG;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -445,6 +469,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = CBHV6PGRWG;
 				ENABLE_HARDENED_RUNTIME = YES;
