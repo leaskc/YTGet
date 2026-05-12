@@ -12,7 +12,13 @@
       <title>YTGet 1.4.1</title>
       <sparkle:version>37</sparkle:version>
       <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
-      <sparkle:releaseNotesLink>https://github.com/leaskc/YTGet/releases/tag/v1.4.1</sparkle:releaseNotesLink>
+      <description><![CDATA[
+        <h3>YTGet 1.4.1</h3>
+        <ul>
+          <li>Sparkle auto-update support — YTGet now checks for updates on launch and notifies you when a new version is available</li>
+          <li>Build number now reflects the git commit count and increments automatically with each release</li>
+        </ul>
+      ]]></description>
       <pubDate>Tue, 12 May 2026 15:07:51 +0000</pubDate>
       <enclosure
         url="https://github.com/leaskc/YTGet/releases/download/v1.4.1/YTGet-1.4.1.dmg"
@@ -26,7 +32,13 @@
       <title>YTGet 1.4.0</title>
       <sparkle:version>32</sparkle:version>
       <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
-      <sparkle:releaseNotesLink>https://github.com/leaskc/YTGet/releases/tag/v1.4.0</sparkle:releaseNotesLink>
+      <description><![CDATA[
+        <h3>YTGet 1.4.0</h3>
+        <ul>
+          <li>Filename collision detection — if a file with the same name already exists, choose to use a unique filename, overwrite, or cancel</li>
+          <li>Automatic build numbering from git commit count</li>
+        </ul>
+      ]]></description>
       <pubDate>Tue, 12 May 2026 15:01:44 +0000</pubDate>
       <enclosure
         url="https://github.com/leaskc/YTGet/releases/download/v1.4.0/YTGet-1.4.0.dmg"

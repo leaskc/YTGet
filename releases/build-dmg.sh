@@ -50,10 +50,11 @@ ED_SIG=$(echo "$SIGN_OUTPUT" | grep -o 'edSignature="[^"]*"' | sed 's/edSignatur
 DMG_SIZE=$(wc -c < "$OUTPUT" | tr -d ' ')
 PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
 DMG_URL="https://github.com/leaskc/YTGet/releases/download/v${VERSION}/YTGet-${VERSION}.dmg"
-RELEASE_NOTES_URL="https://github.com/leaskc/YTGet/releases/tag/v${VERSION}"
 
 # Insert new <item> before the first existing one using Python (BSD sed
-# can't handle multi-line replacement strings reliably on macOS)
+# can't handle multi-line replacement strings reliably on macOS).
+# The <description> CDATA block is what Sparkle shows in the update dialog —
+# edit it in appcast.xml before pushing to add proper release notes.
 python3 - <<PYEOF
 appcast = open("${APPCAST}").read()
 
@@ -61,7 +62,12 @@ new_item = """    <item>
       <title>YTGet ${VERSION}</title>
       <sparkle:version>${BUILD}</sparkle:version>
       <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
-      <sparkle:releaseNotesLink>${RELEASE_NOTES_URL}</sparkle:releaseNotesLink>
+      <description><![CDATA[
+        <h3>YTGet ${VERSION}</h3>
+        <ul>
+          <li><!-- add release notes here before pushing --></li>
+        </ul>
+      ]]></description>
       <pubDate>${PUB_DATE}</pubDate>
       <enclosure
         url="${DMG_URL}"
@@ -78,5 +84,6 @@ PYEOF
 echo "✅ appcast.xml updated for v${VERSION} (build ${BUILD})"
 echo ""
 echo "Next steps:"
-echo "  1. git add appcast.xml && git commit -m 'Release ${VERSION}' && git push"
-echo "  2. gh release create v${VERSION} '${OUTPUT}' --title 'YTGet ${VERSION}'"
+echo "  1. Edit appcast.xml — fill in the release notes in the <description> block"
+echo "  2. git add appcast.xml && git commit -m 'Release ${VERSION}' && git push"
+echo "  3. gh release create v${VERSION} '${OUTPUT}' --title 'YTGet ${VERSION}'"
